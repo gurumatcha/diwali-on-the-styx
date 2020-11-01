@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="author" content="Samir Ghosh">
+    <meta name="description" content="Diwali on the Styx is a generative art piece">
+    <link rel="shortcut icon" href="sample.gif" type="image/x-icon">
     <meta charset="UTF-8">
     <title>styx</title>
 <!--  https://threejs.org/  -->
@@ -16,14 +19,25 @@
             width: 100%;
             height: 100%;
             display: block;
+            position: absolute;
+            z-index: 1;
+        }
+        a {
+            position: absolute;
+            z-index: 9999;
+            color: white;
+            font-family: sans-serif;
+            margin: 1em;
         }
     </style>
-<!--   boilerplate shader + three code from https://thebookofshaders.com/04/ -->
+<!--   boilerplate shader + threejs code from https://thebookofshaders.com/04/ -->
 </head>
 <body>
+<a href="https://github.com/gurumatcha/diwali-on-the-styx">github</a>
 <div id="container"></div>
 
 <script id="vertexShader" type="x-shader/x-vertex">
+//    oh I can't wait to mess around with this!
     void main() {
         gl_Position = vec4( position, 1.0 );
     }
@@ -45,6 +59,8 @@
         43758.5453123);
     }
     // quillez's 2D simplex noise https://www.shadertoy.com/view/Msf3WH
+    // originally had issue with tiling, but Mike Bostock's sketch and the book of shaders chapter on noise helped me figure it out
+    // https://observablehq.com/@mbostock/domain-warping
     vec2 hash( vec2 p ) // replace this by something better
     {
         p = vec2( dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)) );
@@ -86,25 +102,38 @@
         vec2 st = gl_FragCoord.xy/u_resolution.xy;
         st.x *= u_resolution.x/u_resolution.y;
         vec3 color = vec3(0.0);
-        vec2 p = st*3.0;
+        // determines size
+        vec2 p = st*3.;
+        // river flow strength
         p.x += u_time * 0.01;
-//        float s = u_time * 0.1;
-//        float t = u_time * 0.01;
-//        float u = u_time * 0.1;
-//        color += fbm( p + u + fbm(p + t + fbm(p + s)));
+        // quillez does fbm( p + fbm(p)), which he notates as fbm(q + r), using q and r to modulate color
+        // fully expanded, I'm doing fbm(p + fbm(p + fbm(p))), so additional nesting r = fbm(p + s)
+        // each of these determines allow me to set the d/dt of q,r,s
+        // The undercurrent is s, it has the greatest effect on the whole simulation as its at the core
+        // it's d/dt, t3, is set to be opposite t1, which affects the pollution.
+        // these are nested functions so the order magnitude needs to be different
+        // t2 modulates the rivers velocity, here it's slightly against the river flow strength, almost 0
+        // originally t values had an additional trig term, but alas performance
 
+        // undercurrent relative velocity
         float t1 = u_time * -0.05;
+        // river relative velocity
         float t2 = u_time * 0.01;
+        // pollution relative velocity
         float t3 = u_time * 0.1;
 
         vec2 q = p + t1;
         float s = fbm(p + t3);
         float r = fbm(p + t2 + s);
 
+        // so this is where is ressembles the canonical quillez technique
         color += fbm(q + r);
+        // bump up brightness a smidgen
         color += 0.15;
         color.r +=  s + 0.05;
+        // note that r here isn't red, it's river as modulated by undercurrent
         color.b += r + 0.3;
+        // pollution as opposite of undercurrent color (couldnt use q without more operations)
         color.g += s/2.5;
         gl_FragColor = vec4(color,1.0);
 
@@ -116,7 +145,10 @@
     var uniforms;
 
     init();
-    animate();
+    // the ?frame thing
+    // ternary operator because a good friend of mine grinds his teeth when he sees them
+    var url = new URL(document.location);
+    url.searchParams.has("frame")? static() : animate();
 
     function init() {
         container = document.getElementById( 'container' );
@@ -166,6 +198,10 @@
     function animate() {
         requestAnimationFrame( animate );
         render();
+    }
+    function static() {
+        uniforms.u_time.value =10;
+        renderer.render( scene, camera );
     }
 
     function render() {
