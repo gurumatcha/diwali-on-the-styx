@@ -140,13 +140,15 @@
     }
 </script>
 <script>
+    console.log("oh it's good to see someone inspecting the source!");
     var container;
     var camera, scene, renderer;
     var uniforms;
 
     var sBrowser, sUsrAg = navigator.userAgent;
+    //I need a friend with android to test...
     if (sUsrAg.indexOf("Safari") > -1) {
-        alert(`doesn't work too well on safari or mobile rn, could you use firefox or chrome on a desktop?`)
+        alert(`doesn't work too well on safari or mobile rn, could you use firefox or chrome on a desktop?`);
     }
     init();
     // the ?frame thing
@@ -156,12 +158,9 @@
 
     function init() {
         container = document.getElementById( 'container' );
-
         camera = new THREE.Camera();
         camera.position.z = 1;
-
         scene = new THREE.Scene();
-
         var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
 
         uniforms = {
@@ -181,12 +180,10 @@
 
         renderer = new THREE.WebGLRenderer();
         renderer.setPixelRatio( window.devicePixelRatio );
-
         container.appendChild( renderer.domElement );
-
         onWindowResize();
         window.addEventListener( 'resize', onWindowResize, false );
-
+        // could be left out, but I might want it later
         document.onmousemove = function(e){
             uniforms.u_mouse.value.x = e.pageX
             uniforms.u_mouse.value.y = e.pageY
