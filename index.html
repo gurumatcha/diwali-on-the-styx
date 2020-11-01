@@ -144,6 +144,10 @@
     var camera, scene, renderer;
     var uniforms;
 
+    var sBrowser, sUsrAg = navigator.userAgent;
+    if (sUsrAg.indexOf("Safari") > -1) {
+        alert(`doesn't work too well on safari or mobile rn, could you use firefox or chrome on a desktop?`)
+    }
     init();
     // the ?frame thing
     // ternary operator because a good friend of mine grinds his teeth when he sees them
