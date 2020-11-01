@@ -85,15 +85,27 @@
     void main() {
         vec2 st = gl_FragCoord.xy/u_resolution.xy;
         st.x *= u_resolution.x/u_resolution.y;
-
         vec3 color = vec3(0.0);
         vec2 p = st*3.0;
         p.x += u_time * 0.01;
-        float s = u_time * 0.1;
-        float t = u_time * 0.01;
-        float u = u_time * 0.1;
-        color += fbm( p + u + fbm(p + t + fbm(p + s)));
-        gl_FragColor = vec4(color+0.1,1.0);
+//        float s = u_time * 0.1;
+//        float t = u_time * 0.01;
+//        float u = u_time * 0.1;
+//        color += fbm( p + u + fbm(p + t + fbm(p + s)));
+
+        float t1 = u_time * 0.1;
+        float t2 = u_time * 0.01;
+        float t3 = u_time * 0.1;
+
+        vec2 q = p + t1;
+        float s = fbm(p + t3);
+        float r = fbm(p + t2 + s);
+
+        color += fbm(q + r);
+        color += 0.1;
+        color.b += r;
+        color.g += s;
+        gl_FragColor = vec4(color,1.0);
 
     }
 </script>
