@@ -103,8 +103,9 @@
 
         color += fbm(q + r);
         color += 0.1;
-        color.b += r;
-        color.g += s;
+        color.r += 0.05;
+        color.b += r + 0.2;
+        color.g += s/1.5;
         gl_FragColor = vec4(color,1.0);
 
     }
