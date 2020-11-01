@@ -93,7 +93,7 @@
 //        float u = u_time * 0.1;
 //        color += fbm( p + u + fbm(p + t + fbm(p + s)));
 
-        float t1 = u_time * 0.1;
+        float t1 = u_time * -0.05;
         float t2 = u_time * 0.01;
         float t3 = u_time * 0.1;
 
@@ -102,10 +102,10 @@
         float r = fbm(p + t2 + s);
 
         color += fbm(q + r);
-        color += 0.1;
-        color.r += 0.05;
-        color.b += r + 0.2;
-        color.g += s/1.5;
+        color += 0.15;
+        color.r +=  s + 0.05;
+        color.b += r + 0.3;
+        color.g += s/2.5;
         gl_FragColor = vec4(color,1.0);
 
     }
