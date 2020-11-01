@@ -58,7 +58,7 @@
         vec2(12.9898,78.233)))*
         43758.5453123);
     }
-    // quillez's 2D simplex noise https://www.shadertoy.com/view/Msf3WH
+    // Quilez's 2D simplex noise https://www.shadertoy.com/view/Msf3WH
     // originally had issue with tiling, but Mike Bostock's sketch and the book of shaders chapter on noise helped me figure it out
     // https://observablehq.com/@mbostock/domain-warping
     vec2 hash( vec2 p ) // replace this by something better
@@ -106,7 +106,7 @@
         vec2 p = st*3.;
         // river flow strength
         p.x += u_time * 0.01;
-        // quillez does fbm( p + fbm(p)), which he notates as fbm(q + r), using q and r to modulate color
+        // quilez does fbm( p + fbm(p)), which he notates as fbm(q + r), using q and r to modulate color
         // fully expanded, I'm doing fbm(p + fbm(p + fbm(p))), so additional nesting r = fbm(p + s)
         // each of these determines allow me to set the d/dt of q,r,s
         // The undercurrent is s, it has the greatest effect on the whole simulation as its at the core
@@ -126,7 +126,7 @@
         float s = fbm(p + t3);
         float r = fbm(p + t2 + s);
 
-        // so this is where is ressembles the canonical quillez technique
+        // so this is where is ressembles the canonical quilez technique
         color += fbm(q + r);
         // bump up brightness a smidgen
         color += 0.15;
