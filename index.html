@@ -108,9 +108,9 @@
         p.x += u_time * 0.01;
         // quilez does fbm( p + fbm(p)), which he notates as fbm(q + r), using q and r to modulate color
         // fully expanded, I'm doing fbm(p + fbm(p + fbm(p))), so additional nesting r = fbm(p + s)
-        // each of these determines allow me to set the d/dt of q,r,s
-        // The undercurrent is s, it has the greatest effect on the whole simulation as its at the core
-        // it's d/dt, t3, is set to be opposite t1, which affects the pollution.
+        // I add terms to set the d/dt of q,r,s
+        // The undercurrent is s, it has the greatest effect on the whole simulation at the core
+        // its d/dt, t3, is set to be opposite t1, which affects the pollution.
         // these are nested functions so the order magnitude needs to be different
         // t2 modulates the rivers velocity, here it's slightly against the river flow strength, almost 0
         // originally t values had an additional trig term, but alas performance
