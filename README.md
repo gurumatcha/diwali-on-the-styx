@@ -3,7 +3,9 @@
 =======
 A generative art piece that studies water movement, created as my submission to [Generative Unfoldings](https://arts.mit.edu/cast/symposia/generative-unfoldings-call/)
 
+
 [see the project here! only firefox/chrome on desktop computers](https://gurumatcha.github.io/diwali-on-the-styx/)
+If you're on a newer mac, go to settings > 💡energy saver, and disable automatic graphics switching
 
 ## essay
 The inundation of an AI-empowered surveillance capitalism is depicted in the flow of the River Styx, a greek mythological symbol of collective human experience. Derived from a Quilez domain warping technique, the hydrology is mediated by a metallic pollution on the surface, but ultimately gives way to an illuminated undertow.
