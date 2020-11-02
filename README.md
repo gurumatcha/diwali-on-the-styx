@@ -1,7 +1,11 @@
 # diwali on the styx
 ![sample](sample.gif)
 =======
+A generative art piece that studies water movement, created as my submission to [Generative Unfoldings](https://arts.mit.edu/cast/symposia/generative-unfoldings-call/)
+
 [see the project here! only firefox/chrome on desktop computers](https://gurumatcha.github.io/diwali-on-the-styx/)
+
+## essay
 The inundation of an AI-empowered surveillance capitalism is depicted in the flow of the River Styx, a greek mythological symbol of collective human experience. Derived from a Quilez domain warping technique, the hydrology is mediated by a metallic pollution on the surface, but ultimately gives way to an illuminated undertow.
 This piece was created during Diwali, a festival of lights that includes floating lamps on waterways. These lights represent knowledge and wisdom that pushes back against the darkness of fear and ignorance. As Tagore foresaw the scarring of human consciousness due to colonization, I fear the effects of disinformation and behavior modification due to a Silicon Valley hegemony. Here, I express this fear through the inexorable torrent of blue. However, no matter how suffocating this polluted river appears, the undercurrent luminescence never expires, and always surfaces in brilliant pockets of resistance. 
 ## next steps
