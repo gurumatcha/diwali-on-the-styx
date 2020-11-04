@@ -33,9 +33,11 @@
 <!--   boilerplate shader + threejs code from https://thebookofshaders.com/04/ -->
 </head>
 <body>
-<a href="https://github.com/gurumatcha/diwali-on-the-styx">github</a>
-<div id="container"></div>
+<nav id="nav">
+    <a href="https://github.com/gurumatcha/diwali-on-the-styx">github</a>
+</nav>
 
+<div id="container"></div>
 <script id="vertexShader" type="x-shader/x-vertex">
 //    oh I can't wait to mess around with this!
     void main() {
@@ -205,8 +207,10 @@
         render();
     }
     function static() {
+        document.getElementById('nav').hidden = true;
         uniforms.u_time.value =10;
         renderer.render( scene, camera );
+
     }
 
     function render() {
