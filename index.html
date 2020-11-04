@@ -154,7 +154,8 @@
     // the ?frame thing
     // ternary operator because a good friend of mine grinds his teeth when he sees them
     var url = new URL(document.location);
-    url.searchParams.has("frame")? static() : animate();
+    var frame = url.searchParams.has("frame");
+    frame? static() : animate();
 
     function init() {
         container = document.getElementById( 'container' );
@@ -194,6 +195,9 @@
         renderer.setSize( window.innerWidth, window.innerHeight );
         uniforms.u_resolution.value.x = renderer.domElement.width;
         uniforms.u_resolution.value.y = renderer.domElement.height;
+        if (frame){
+            static();
+        }
     }
 
     function animate() {
