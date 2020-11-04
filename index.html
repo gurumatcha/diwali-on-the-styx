@@ -9,6 +9,7 @@
 <!--  https://threejs.org/  -->
     <script src="./three.min.js"></script>
 <!--    boilerplate responsiveness from  https://threejsfundamentals.org/threejs/lessons/threejs-responsive.html -->
+    <!--   boilerplate shader + threejs code from https://thebookofshaders.com/04/ -->
     <style>
         html, body {
             padding: 0;
@@ -30,13 +31,12 @@
             margin: 1em;
         }
     </style>
-<!--   boilerplate shader + threejs code from https://thebookofshaders.com/04/ -->
+
 </head>
 <body>
 <nav id="nav">
     <a href="https://github.com/gurumatcha/diwali-on-the-styx">github</a>
 </nav>
-
 <div id="container"></div>
 <script id="vertexShader" type="x-shader/x-vertex">
 //    oh I can't wait to mess around with this!
@@ -45,12 +45,9 @@
     }
 </script>
 <script id="fragmentShader" type="x-shader/x-fragment">
-
-
     #ifdef GL_ES
     precision mediump float;
     #endif
-
     uniform vec2 u_resolution;
     uniform vec2 u_mouse;
     uniform float u_time;
@@ -68,7 +65,6 @@
         p = vec2( dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)) );
         return -1.0 + 2.0*fract(sin(p)*43758.5453123);
     }
-
     float noise( in vec2 p )
     {
         const float K1 = 0.366025404; // (sqrt(3)-1)/2;
@@ -99,7 +95,6 @@
         }
         return value;
     }
-
     void main() {
         vec2 st = gl_FragCoord.xy/u_resolution.xy;
         st.x *= u_resolution.x/u_resolution.y;
@@ -123,11 +118,9 @@
         float t2 = u_time * 0.01;
         // pollution relative velocity
         float t3 = u_time * 0.1;
-
         vec2 q = p + t1;
         float s = fbm(p + t3);
         float r = fbm(p + t2 + s);
-
         // so this is where is ressembles the canonical quilez technique
         color += fbm(q + r);
         // bump up brightness a smidgen
@@ -142,45 +135,36 @@
     }
 </script>
 <script>
-    console.log("oh it's good to see someone inspecting the source!");
-    var container;
-    var camera, scene, renderer;
-    var uniforms;
-
-    var sBrowser, sUsrAg = navigator.userAgent;
+    console.log("oh it's good to see someone inspecting the source!");var sBrowser, sUsrAg = navigator.userAgent;
     //I need a friend with android to test...
     if (sUsrAg.indexOf("Safari") > -1) {
-        alert(`doesn't work too well on safari or mobile rn, could you use firefox or chrome on a desktop?`);
+        alert(`This prototype doesn't work optimally on safari or mobile. Could you run it on firefox or chrome on a desktop?`);
     }
+    var container, camera, scene, renderer, uniforms
     init();
     // the ?frame thing
     // ternary operator because a good friend of mine grinds his teeth when he sees them
     var url = new URL(document.location);
     var frame = url.searchParams.has("frame");
     frame? static() : animate();
-
     function init() {
         container = document.getElementById( 'container' );
         camera = new THREE.Camera();
         camera.position.z = 1;
         scene = new THREE.Scene();
         var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
-
         uniforms = {
             u_time: { type: "f", value: 1.0 },
             u_resolution: { type: "v2", value: new THREE.Vector2() },
             u_mouse: { type: "v2", value: new THREE.Vector2() }
         };
-
         var material = new THREE.ShaderMaterial( {
             uniforms: uniforms,
             vertexShader: document.getElementById( 'vertexShader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentShader' ).textContent
         } );
-
         var mesh = new THREE.Mesh( geometry, material );
         scene.add( mesh );
-
         renderer = new THREE.WebGLRenderer();
         renderer.setPixelRatio( window.devicePixelRatio );
         container.appendChild( renderer.domElement );
@@ -192,7 +176,6 @@
             uniforms.u_mouse.value.y = e.pageY
         }
     }
-
     function onWindowResize( event ) {
         renderer.setSize( window.innerWidth, window.innerHeight );
         uniforms.u_resolution.value.x = renderer.domElement.width;
@@ -201,7 +184,6 @@
             static();
         }
     }
-
     function animate() {
         requestAnimationFrame( animate );
         render();
@@ -212,7 +194,6 @@
         renderer.render( scene, camera );
 
     }
-
     function render() {
         uniforms.u_time.value += 0.05;
         renderer.render( scene, camera );
