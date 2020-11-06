@@ -6,9 +6,9 @@
     <link rel="shortcut icon" href="sample.gif" type="image/x-icon">
     <meta charset="UTF-8">
     <title>styx</title>
-<!--  https://threejs.org/  -->
+    <!--  https://threejs.org/  -->
     <script src="./three.min.js"></script>
-<!--    boilerplate responsiveness from  https://threejsfundamentals.org/threejs/lessons/threejs-responsive.html -->
+    <!--    boilerplate responsiveness from  https://threejsfundamentals.org/threejs/lessons/threejs-responsive.html -->
     <!--   boilerplate shader + threejs code from https://thebookofshaders.com/04/ -->
     <style>
         html, body {
@@ -31,7 +31,7 @@
             font-family: sans-serif;
             margin: 1em;
         }
-        a{
+        p, a{
             margin-top: .5em;
             color: white;
             display: block;
@@ -40,13 +40,14 @@
 
 </head>
 <body>
+<video id="video" style="display:none" autoplay playsinline></video>
 <nav id="nav">
-    <a href="https://github.com/gurumatcha/diwali-on-the-styx">source</a>
-    <a href="reflection.html">variation 1: reflection (webcam enabled)</a>
+    <a href="https://github.com/gurumatcha/diwali-on-the-styx">github</a>
+    <p>Wave your hand in front of the camera slowly!</p>
 </nav>
 <div id="container"></div>
 <script id="vertexShader" type="x-shader/x-vertex">
-//    oh I can't wait to mess around with this!
+    //    oh I can't wait to mess around with this!
     void main() {
         gl_Position = vec4( position, 1.0 );
     }
@@ -58,6 +59,7 @@
     uniform vec2 u_resolution;
     uniform vec2 u_mouse;
     uniform float u_time;
+    uniform sampler2D cam;
     // book of shaders random from fbm chapter
     float random (in vec2 st) {
         return fract(sin(dot(st.xy,
@@ -102,6 +104,34 @@
         }
         return value;
     }
+
+//    from book of shaders https://thebookofshaders.com/06/
+    vec3 rgb2hsb( in vec3 c ){
+        vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+        vec4 p = mix(vec4(c.bg, K.wz),
+        vec4(c.gb, K.xy),
+        step(c.b, c.g));
+        vec4 q = mix(vec4(p.xyw, c.r),
+        vec4(c.r, p.yzx),
+        step(p.x, c.r));
+        float d = q.x - min(q.w, q.y);
+        float e = 1.0e-10;
+        return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)),
+        d / (q.x + e),
+        q.x);
+    }
+
+    //  Function from Iñigo Quiles
+    //  https://www.shadertoy.com/view/MsS3Wc
+    vec3 hsb2rgb( in vec3 c ){
+        vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),
+        6.0)-3.0)-1.0,
+        0.0,
+        1.0 );
+        rgb = rgb*rgb*(3.0-2.0*rgb);
+        return c.z * mix(vec3(1.0), rgb, c.y);
+    }
+
     void main() {
         vec2 st = gl_FragCoord.xy/u_resolution.xy;
         st.x *= u_resolution.x/u_resolution.y;
@@ -132,11 +162,32 @@
         color += fbm(q + r);
         // bump up brightness a smidgen
         color += 0.15;
+        vec3 c = texture2D(cam,st+vec2(r/5.,s/5.)).xyz;
+
+        //ok ok ok ok
+
+        s += (c.x + c.y + c.z)/3.0;
         color.r +=  s + 0.05;
         // note that r here isn't red, it's river as modulated by undercurrent
         color.b += r + 0.3;
         // pollution as opposite of undercurrent color (couldnt use q without more operations)
         color.g += s/2.5;
+
+        vec3 normalcolor = color;
+        color = rgb2hsb(color);
+        c = rgb2hsb(c);
+
+        float threshold  = smoothstep(.2,1., color.z) + smoothstep(.3,1.,r);
+
+//        color.x = mix(color.x,c.x,threshold);
+//        color.y = mix(color.y,c.y,threshold);
+        color = mix(color,c, threshold);
+        float sat = smoothstep(0.,.5,color.y);
+        color = hsb2rgb(color);
+
+//        float greenthreshold = smoothstep(.4,1.,color.g);
+        color = mix(color,normalcolor,sat * .5);
+
         gl_FragColor = vec4(color,1.0);
 
     }
@@ -160,10 +211,42 @@
         camera.position.z = 1;
         scene = new THREE.Scene();
         var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
+
+        // VIDEO
+        video = document.getElementById('video');
+        var texture = new THREE.VideoTexture(video);
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+
+            var constraints = {
+                video: {
+                    width: 1280,
+                    height: 720,
+                    facingMode: 'user'
+                }
+            };
+
+            navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+
+                // apply the stream to the video element used in the texture
+                video.srcObject = stream;
+                video.play();
+
+            }).catch(function (error) {
+                console.error('Unable to access the camera/webcam.', error);
+
+            });
+
+        } else {
+
+            console.error('MediaDevices interface not available.');
+
+        }
+
         uniforms = {
             u_time: { type: "f", value: 1.0 },
             u_resolution: { type: "v2", value: new THREE.Vector2() },
-            u_mouse: { type: "v2", value: new THREE.Vector2() }
+            u_mouse: { type: "v2", value: new THREE.Vector2() },
+            cam: {value: texture}
         };
         var material = new THREE.ShaderMaterial( {
             uniforms: uniforms,
