@@ -6,9 +6,9 @@
     <link rel="shortcut icon" href="sample.gif" type="image/x-icon">
     <meta charset="UTF-8">
     <title>styx</title>
-<!--  https://threejs.org/  -->
+    <!--  https://threejs.org/  -->
     <script src="./three.min.js"></script>
-<!--    boilerplate responsiveness from  https://threejsfundamentals.org/threejs/lessons/threejs-responsive.html -->
+    <!--    boilerplate responsiveness from  https://threejsfundamentals.org/threejs/lessons/threejs-responsive.html -->
     <!--   boilerplate shader + threejs code from https://thebookofshaders.com/04/ -->
     <style>
         html, body {
@@ -42,12 +42,11 @@
 <body>
 <nav id="nav">
     <a href="https://github.com/gurumatcha/diwali-on-the-styx">source</a>
-    <a href="reflection.html">variation 1: reflection (webcam enabled)</a>
-    <a href="stillness.html">variation 2: stillness (mouse interaction)</a>
+    <p>Reduce turbulence around mouse location</p>
 </nav>
 <div id="container"></div>
 <script id="vertexShader" type="x-shader/x-vertex">
-//    oh I can't wait to mess around with this!
+    //    oh I can't wait to mess around with this!
     void main() {
         gl_Position = vec4( position, 1.0 );
     }
@@ -105,12 +104,21 @@
     }
     void main() {
         vec2 st = gl_FragCoord.xy/u_resolution.xy;
-        st.x *= u_resolution.x/u_resolution.y;
-        vec3 color = vec3(0.0);
+
+        float aspect = u_resolution.x/u_resolution.y;
+        st.x *= aspect;
+        vec3 color = vec3(0.);
+        // https://stackoverflow.com/questions/55850554/how-can-i-pass-the-mouse-positions-from-js-to-shader-through-a-uniform
+        // why tf the window height and canvas resolution are different, idk
+        vec2 m = u_mouse.xy;
+        m.y = 1. - m.y;
+        m.x *= aspect;
+        float turbulence = smoothstep(0.,.4,distance(m,st));
+
         // determines size
         vec2 p = st*3.;
         // river flow strength
-        p.x += u_time * 0.01;
+        p.x += u_time * 0.01 * turbulence;
         // quilez does fbm( p + fbm(p)), which he notates as fbm(q + r), using q and r to modulate color
         // fully expanded, I'm doing fbm(p + fbm(p + fbm(p))), so additional nesting r = fbm(p + s)
         // I add terms to set the d/dt of q,r,s
@@ -126,28 +134,26 @@
         float t2 = u_time * 0.01;
         // pollution relative velocity
         float t3 = u_time * 0.1;
-        vec2 q = p + t1;
+        vec2 q = (p + t1);
         float s = fbm(p + t3);
-        float r = fbm(p + t2 + s);
+        float r = fbm(p + t2 + s) * turbulence;
         // so this is where is ressembles the canonical quilez technique
         color += fbm(q + r);
         // bump up brightness a smidgen
-        color += 0.15;
+        color += 0.15 + (1.- turbulence)/3.;
         color.r +=  s + 0.05;
         // note that r here isn't red, it's river as modulated by undercurrent
         color.b += r + 0.3;
         // pollution as opposite of undercurrent color (couldnt use q without more operations)
         color.g += s/2.5;
+
+//        gl_FragColor = vec4(color,1.0);
         gl_FragColor = vec4(color,1.0);
 
     }
 </script>
 <script>
     console.log("oh it's good to see someone inspecting the source!");var sBrowser, sUsrAg = navigator.userAgent;
-    //I need a friend with android to test...
-    if (sUsrAg.indexOf("Safari") > -1) {
-        alert(`This prototype doesn't work optimally on safari or mobile. Could you run it on firefox or chrome on a desktop?`);
-    }
     var container, camera, scene, renderer, uniforms
     init();
     // the ?frame thing
@@ -180,14 +186,15 @@
         window.addEventListener( 'resize', onWindowResize, false );
         // could be left out, but I might want it later
         document.onmousemove = function(e){
-            uniforms.u_mouse.value.x = e.pageX
-            uniforms.u_mouse.value.y = e.pageY
+            uniforms.u_mouse.value.x = e.pageX /window.innerWidth;
+            uniforms.u_mouse.value.y = e.pageY /window.innerHeight;
         }
     }
     function onWindowResize( event ) {
         renderer.setSize( window.innerWidth, window.innerHeight );
         uniforms.u_resolution.value.x = renderer.domElement.width;
         uniforms.u_resolution.value.y = renderer.domElement.height;
+
         if (frame){
             static();
         }
@@ -204,6 +211,7 @@
     }
     function render() {
         uniforms.u_time.value += 0.05;
+
         renderer.render( scene, camera );
     }
 </script>
