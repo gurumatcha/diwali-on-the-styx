@@ -1,4 +1,4 @@
-# diwali on the styx
+
 ![sample](sample.gif)
 =======
 A generative art piece that studies water movement
